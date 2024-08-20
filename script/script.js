@@ -31,6 +31,14 @@ const colors = [
         [1, 1, 0],
         [0, 1, 1]
     ]];
+var fallenBlocks;//这个二维列表存储这已经落下的方块的颜色值
+var fallingShape = {
+    shapeID: 0,       // 形状的索引，对应于 shapes 数组中的索引
+    color:0,         // 形状的颜色索引
+    x: 0,             // 形状的水平位置
+    y: 0,             // 形状的垂直位置
+    rotation: 0       // 形状的旋转状态
+};
 const borderOfBlock = 0.2;//边框方块的百分比
 const colorChange = [0.6,0.7,-0.5,-0.6];//方块周围的梯形颜色增减值的数组
 
@@ -49,9 +57,6 @@ function setGameCVSSize(){
     bufferCVS.height = gameCVS.height;
 }setGameCVSSize();
 
-function update(){
-
-}
 function drawBlock(ctx,x, y, color){
     ctx.fillStyle = color;
     ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
@@ -180,4 +185,17 @@ function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
         }
     }
 }
-drawShape(gameCTX,1,1,1,colors[1],3);
+
+function update(){
+    bufferCTX.clearRect(0, 0, bufferCVS.width, bufferCVS.height);
+    drawShape(
+        bufferCTX,
+        fallingShape.shapeID,
+        fallingShape.x,
+        fallingShape.y,
+        colors[fallingShape.color],
+        fallingShape.rotation
+    );
+    gameCTX.drawImage(bufferCVS, 0, 0);
+}
+update();
