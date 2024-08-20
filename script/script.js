@@ -31,7 +31,13 @@ const colors = [
         [1, 1, 0],
         [0, 1, 1]
     ]];
-var fallenBlocks;//这个二维列表存储这已经落下的方块的颜色值
+var fallenBlocks = [];//这个二维列表存储这已经落下的方块的颜色值
+for(let i=0;i<heigh;i++){
+    fallenBlocks[i] = [];
+    for(let j=0;j<width;j++){
+        fallenBlocks[i][j] = null;
+    }
+}
 var fallingShape = {
     shapeID: 0,       // 形状的索引，对应于 shapes 数组中的索引
     color:0,         // 形状的颜色索引
@@ -185,7 +191,56 @@ function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
         }
     }
 }
+function storeFallenBlock() {//将当前形状信息添加到已落方块数组中
+    const { shapeID, color, x, y, rotation } = fallingShape;
+    const shape = shapes[shapeID];
 
+    for (let i = 0; i < shape.length; i++) {
+        for (let j = 0; j < shape[i].length; j++) {
+        if (shape[i % shape.length][j % shape[i].length] === 1) {
+            let newX = x + j;
+            let newY = y + i;
+
+          // 根据旋转角度计算新的位置
+            switch (rotation) {
+            case 0: // 无旋转
+                fallenBlocks[newY][newX] = color;
+                break;
+            case 1: // 顺时针旋转90度
+                fallenBlocks[newX][fallenBlocks[0].length - 1 - newY] = color;
+                break;
+            case 2: // 旋转180度
+                fallenBlocks[fallenBlocks.length - 1 - newY][fallenBlocks[0].length - 1 - newX] = color;
+                break;
+            case 3: // 逆时针旋转90度
+                fallenBlocks[fallenBlocks.length - 1 - newX][newY] = color;
+                break;
+            }
+        }
+    }
+    }
+}
+
+function renderFallenBlocks(ctx) {//读取已经落下的方块并渲染
+    for (let i = 0; i < fallenBlocks.length; i++) {
+        for (let j = 0; j < fallenBlocks[i].length; j++) {
+            if (fallenBlocks[i][j] !== null) {
+                const color = colors[fallenBlocks[i][j]];
+                drawBlock(ctx, j, i, color);
+            }
+        }
+    }
+}
+
+function randomSetShape() {//随机设置一个形状
+    const shapeID = Math.floor(Math.random() * shapes.length);
+    const color = Math.floor(Math.random() * colors.length);
+    fallingShape.shapeID = shapeID;
+    fallingShape.color = color;
+    fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
+    fallingShape.y = 0;
+    fallingShape.rotation = 0;
+}
 function update(){
     bufferCTX.clearRect(0, 0, bufferCVS.width, bufferCVS.height);
     drawShape(
@@ -195,7 +250,16 @@ function update(){
         fallingShape.y,
         colors[fallingShape.color],
         fallingShape.rotation
-    );
+    );renderFallenBlocks(bufferCTX);
+    gameCTX.clearRect(0, 0, gameCVS.width, gameCVS.height);
     gameCTX.drawImage(bufferCVS, 0, 0);
+    if(fallingShape.y+1 >= heigh){
+        storeFallenBlock();
+    }
 }
 update();
+
+setInterval(function(){
+    fallingShape.y++;
+    update();
+},1000)
