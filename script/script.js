@@ -88,7 +88,5 @@ function adjustColorBrightness(hexColor, percent) {//改变颜色亮度,使方�
     }
     var newColor =   `#${color[0].toString(16).padStart(2, '0')}${color[1].toString(16).padStart(2, '0')}${color[2].toString(16).padStart(2, '0')}`;
     
-    console.log(r,g,b);
-    console.log(newColor)
     return newColor;
 }
