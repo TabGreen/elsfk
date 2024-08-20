@@ -145,6 +145,39 @@ function adjustColorBrightness(hexColor, percent) {//改变颜色亮度,使方�
 
     return newColor;
 }
+function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
+    const shape = shapes[shapeID];
+    const height = shape.length;
+    const width = shape[0].length;
 
-drawBlock(gameCTX,0,0,colors[1]);
-drawBlock(gameCTX,1,0,colors[0]);
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            let newX, newY;
+
+            // 根据旋转角度计算新的位置
+            switch (rotation) {
+                case 0: // 无旋转
+                    newX = x + j;
+                    newY = y + i;
+                    break;
+                case 1: // 顺时针旋转90度
+                    newX = x + height - 1 - i;
+                    newY = y + j;
+                    break;
+                case 2: // 旋转180度
+                    newX = x + width - 1 - j;
+                    newY = y + height - 1 - i;
+                    break;
+                case 3: // 逆时针旋转90度
+                    newX = x + i;
+                    newY = y + width - 1 - j;
+                    break;
+            }
+
+            if (shape[i % height][j % width] === 1) {
+                drawBlock(ctx, newX, newY, color);
+            }
+        }
+    }
+}
+drawShape(gameCTX,1,1,1,colors[1],3);
