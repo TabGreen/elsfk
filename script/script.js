@@ -233,10 +233,10 @@ function renderFallenBlocks(ctx) {//读取已经落下的方块并渲染
 }
 
 function randomSetShape() {//随机设置一个形状
-    const shapeID = Math.floor(Math.random() * shapes.length);
-    const color = Math.floor(Math.random() * colors.length);
+    let shapeID = Math.floor(Math.random() * shapes.length);
+    let color = Math.floor(Math.random() * colors.length);
     fallingShape.shapeID = shapeID;
-    fallingShape.color = color;
+    fallingShape.color = colors[color];
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = 0;
     fallingShape.rotation = 0;
@@ -255,6 +255,7 @@ function update(){
     gameCTX.drawImage(bufferCVS, 0, 0);
     if(fallingShape.y+1 >= heigh){
         storeFallenBlock();
+        randomSetShape();
     }
 }
 update();
@@ -262,4 +263,4 @@ update();
 setInterval(function(){
     fallingShape.y++;
     update();
-},1000)
+},100)
