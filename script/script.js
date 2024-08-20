@@ -236,10 +236,45 @@ function randomSetShape() {//随机设置一个形状
     let shapeID = Math.floor(Math.random() * shapes.length);
     let color = Math.floor(Math.random() * colors.length);
     fallingShape.shapeID = shapeID;
-    fallingShape.color = colors[color];
+    fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = 0;
     fallingShape.rotation = 0;
+}
+function checkForCollision() {
+    const shape = shapes[fallingShape.shapeID];
+    const rotation = fallingShape.rotation;
+    const shapeWidth = shape[0].length;
+    const shapeHeight = shape.length;
+    // 检查是否碰到其他方块
+    for (let row = 0; row < shapeHeight; row++) {
+        for (let col = 0; col < shapeWidth; col++) {
+        if (shape[row % shapeHeight][col % shapeWidth] === 1) { // 如果是方块
+            let gameRow = fallingShape.y +1+ row;
+            let gameCol = fallingShape.x + col;
+          // 根据旋转角度计算新的位置
+            switch (rotation) {
+            case 0: // 无旋转
+                break;
+            case 1: // 顺时针旋转90度
+                [gameRow, gameCol] = [fallingShape.x + shapeHeight - 1 - row, fallingShape.y + 1 + col];
+                break;
+            case 2: // 旋转180度
+                [gameRow, gameCol] = [fallingShape.y + shapeHeight - row, fallingShape.x + shapeWidth - 1 - col];
+                break;
+            case 3: // 逆时针旋转90度
+                [gameRow, gameCol] = [fallingShape.x + row, fallingShape.y + shapeWidth - col];
+                break;
+            }
+          // 如果该位置已经有方块存在
+            if (fallenBlocks[gameRow] && fallenBlocks[gameRow][gameCol] !== null) {
+            return true;
+            }
+        }
+        }
+    }
+    // 如果没有碰到任何方块，则返回false
+    return false;
 }
 function update(){
     bufferCTX.clearRect(0, 0, bufferCVS.width, bufferCVS.height);
@@ -253,8 +288,13 @@ function update(){
     );renderFallenBlocks(bufferCTX);
     gameCTX.clearRect(0, 0, gameCVS.width, gameCVS.height);
     gameCTX.drawImage(bufferCVS, 0, 0);
-    if(fallingShape.y+1 >= heigh){
+    if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= heigh){
+        try{
         storeFallenBlock();
+        }catch(e){
+            console.log(fallingShape);
+            console.log(colors);
+        }
         randomSetShape();
     }
 }
