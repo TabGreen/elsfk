@@ -1,5 +1,5 @@
 const blockSize = 25;//单个方块的大小25像素
-const heigh = 20;//y轴方向方块个数最多20个
+const height = 20;//y轴方向方块个数最多20个
 const width = 10;//x轴方向方块个数最多10个
 const colors = [
     "#00FFFF",
@@ -32,7 +32,7 @@ const colors = [
         [0, 1, 1]
     ]];
 var fallenBlocks = [];//这个二维列表存储这已经落下的方块的颜色值
-for(let i=0;i<heigh;i++){
+for(let i=0;i<height;i++){
     fallenBlocks[i] = [];
     for(let j=0;j<width;j++){
         fallenBlocks[i][j] = null;
@@ -58,7 +58,7 @@ var bufferCTX = bufferCVS.getContext("2d");
 
 function setGameCVSSize(){
     gameCVS.width = blockSize * width;
-    gameCVS.height = blockSize * heigh;
+    gameCVS.height = blockSize * height;
     bufferCVS.width = gameCVS.width;
     bufferCVS.height = gameCVS.height;
 }setGameCVSSize();
@@ -156,6 +156,28 @@ function adjustColorBrightness(hexColor, percent) {//改变颜色亮度,使方�
 
     return newColor;
 }
+function rotatedCoord(col, row, rotation, x, y) {
+    let newX, newY;
+    switch (rotation) {
+        case 0: // 无旋转
+            newX = x + col;
+            newY = y + row;
+            break;
+        case 1: // 顺时针旋转90度
+            newX = x + height - 1 - row;
+            newY = y + col;
+            break;
+        case 2: // 旋转180度
+            newX = x + width - 1 - col;
+            newY = y + height - 1 - row;
+            break;
+        case 3: // 逆时针旋转90度
+            newX = x + row;
+            newY = y + width - 1 - col;
+            break;
+    }
+    return [newX, newY];
+}
 function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
     const shape = shapes[shapeID];
     const height = shape.length;
@@ -191,42 +213,30 @@ function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
         }
     }
 }
-function storeFallenBlock() {//将当前形状信息添加到已落方块数组中
-    const { shapeID, color, x, y, rotation } = fallingShape;
+function storeFallenBlock() {
+    const { shapeID, x, y, rotation } = fallingShape;
     const shape = shapes[shapeID];
     const shapeWidth = shape[0].length;
     const shapeHeight = shape.length;
+
+    // 存储已固定的方块
     for (let i = 0; i < shapeHeight; i++) {
         for (let j = 0; j < shapeWidth; j++) {
-            if (shape[i % shapeHeight][j % shapeWidth] === 1) { // 如果是方块
+            if (shape[i][j] === 1) { // 如果是方块
                 let newX, newY;
+
                 // 根据旋转角度计算新的位置
-                switch (rotation) {
-                    case 0: // 无旋转
-                        newX = x + j;
-                        newY = y + i;
-                        break;
-                    case 1: // 顺时针旋转90度
-                        newX = y + shapeWidth - 1 - j;
-                        newY = x + i;
-                        break;
-                    case 2: // 旋转180度
-                        newX = x + shapeWidth - 1 - j;
-                        newY = y + shapeHeight - 1 - i;
-                        break;
-                    case 3: // 逆时针旋转90度
-                        newX = y + j;
-                        newY = x + shapeHeight - 1 - i;
-                        break;
-                }
-                // 如果该位置已经在游戏区域内
-                if (newX >= 0 && newX < width && newY >= 0 && newY < heigh) {
-                    fallenBlocks[newY][newX] = color;
+                [newX, newY] = rotatedCoord(j, i, rotation, x, y);
+
+                // 如果坐标有效
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
+                    fallenBlocks[newY][newX] = shapeID; // 存储方块的形状ID
                 }
             }
         }
     }
 }
+
 
 function renderFallenBlocks(ctx) {//读取已经落下的方块并渲染
     for (let i = 0; i < fallenBlocks.length; i++) {
@@ -246,38 +256,33 @@ function randomSetShape() {//随机设置一个形状
     fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = -(shapes[shapeID].length);
-    fallingShape.rotation = 2;
+    fallingShape.rotation = 0;
 }
 function checkForCollision() {
-    const shape = shapes[fallingShape.shapeID];
-    const rotation = fallingShape.rotation;
+    const { shapeID, x, y, rotation } = fallingShape;
+    const shape = shapes[shapeID];
     const shapeWidth = shape[0].length;
     const shapeHeight = shape.length;
+
     // 检查是否碰到其他方块
-    for (let row = 0; row < shapeHeight; row++) {
-        for (let col = 0; col < shapeWidth; col++) {
-        if (shape[row % shapeHeight][col % shapeWidth] === 1) { // 如果是方块
-            let gameRow = fallingShape.y +1+ row;
-            let gameCol = fallingShape.x + col;
-          // 根据旋转角度计算新的位置
-            switch (rotation) {
-            case 0: // 无旋转
-                break;
-            case 1: // 顺时针旋转90度
-                [gameRow, gameCol] = [fallingShape.x + shapeHeight - 1 - row, fallingShape.y + 1 + col];
-                break;
-            case 2: // 旋转180度
-                [gameRow, gameCol] = [fallingShape.y + shapeHeight - row, fallingShape.x + shapeWidth - 1 - col];
-                break;
-            case 3: // 逆时针旋转90度
-                [gameRow, gameCol] = [fallingShape.x + row, fallingShape.y + shapeWidth - col];
-                break;
+    for (let i = 0; i < shapeHeight; i++) {
+        for (let j = 0; j < shapeWidth; j++) {
+            if (shape[i][j] === 1) { // 如果是方块
+                let newX, newY;
+
+                // 根据旋转角度计算新的位置
+                [newX, newY] = rotatedCoord(j, i, rotation, x, y);
+
+                // 检查边界
+                if (newX >= width || newY >= height) {
+                    return true; // 如果超出边界，则视为碰撞
+                }
+
+                // 检查碰撞
+                if (fallenBlocks[newY] && fallenBlocks[newY][newX]) {
+                    return true;
+                }
             }
-          // 如果该位置已经有方块存在
-            if (fallenBlocks[gameRow] && fallenBlocks[gameRow][gameCol] !== null) {
-            return true;
-            }
-        }
         }
     }
     // 如果没有碰到任何方块，则返回false
@@ -295,7 +300,7 @@ function update(){
     );renderFallenBlocks(bufferCTX);
     gameCTX.clearRect(0, 0, gameCVS.width, gameCVS.height);
     gameCTX.drawImage(bufferCVS, 0, 0);
-    if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= heigh){
+    if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= height){
         if(fallingShape.y<= 0){
             clearInterval(gameThread);
             return;//这里在碰撞之后直接返回,否则继续运行可能会导致存储被索引到不存在的数据,导致错误
@@ -305,9 +310,8 @@ function update(){
         }catch(e){
             console.log(fallingShape);
             console.log(colors);
-        }console.log(fallingShape.y);
+        }
         randomSetShape();
-        console.log('running');
     }
 }
 update();
