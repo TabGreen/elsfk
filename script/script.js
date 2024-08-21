@@ -238,7 +238,7 @@ function randomSetShape() {//随机设置一个形状
     fallingShape.shapeID = shapeID;
     fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
-    fallingShape.y = 0;
+    fallingShape.y = -(shapes[shapeID].length);
     fallingShape.rotation = 0;
 }
 function checkForCollision() {
@@ -289,6 +289,9 @@ function update(){
     gameCTX.clearRect(0, 0, gameCVS.width, gameCVS.height);
     gameCTX.drawImage(bufferCVS, 0, 0);
     if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= heigh){
+        if(fallingShape.y + shapes[fallingShape.shapeID].length - 1 <= 0){
+            clearInterval(gameThread);
+        }
         try{
         storeFallenBlock();
         }catch(e){
@@ -300,7 +303,7 @@ function update(){
 }
 update();
 
-setInterval(function(){
-    fallingShape.y++;
+var gameThread = setInterval(function(){
     update();
+    fallingShape.y++;
 },100)
