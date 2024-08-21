@@ -291,7 +291,7 @@ function update(){
     if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= heigh){
         if(fallingShape.y<= 0){
             clearInterval(gameThread);
-            return;
+            return;//这里在碰撞之后直接返回,否则继续运行可能会导致存储被索引到不存在的数据,导致错误
         }
         try{
         storeFallenBlock();
@@ -307,4 +307,4 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},10)
+},1)
