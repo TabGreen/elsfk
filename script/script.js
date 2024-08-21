@@ -43,7 +43,7 @@ var fallingShape = {
     color:0,         // 形状的颜色索引
     x: 0,             // 形状的水平位置
     y: 0,             // 形状的垂直位置
-    rotation: 0       // 形状的旋转状态
+    rotation: 0      // 形状的旋转状态
 };
 const borderOfBlock = 0.2;//边框方块的百分比
 const colorChange = [0.6,0.7,-0.5,-0.6];//方块周围的梯形颜色增减值的数组
@@ -194,30 +194,37 @@ function drawShape(ctx, shapeID, x, y, color, rotation = 0) {
 function storeFallenBlock() {//将当前形状信息添加到已落方块数组中
     const { shapeID, color, x, y, rotation } = fallingShape;
     const shape = shapes[shapeID];
-
-    for (let i = 0; i < shape.length; i++) {
-        for (let j = 0; j < shape[i].length; j++) {
-        if (shape[i % shape.length][j % shape[i].length] === 1) {
-            let newX = x + j;
-            let newY = y + i;
-
-          // 根据旋转角度计算新的位置
-            switch (rotation) {
-            case 0: // 无旋转
-                fallenBlocks[newY][newX] = color;
-                break;
-            case 1: // 顺时针旋转90度
-                fallenBlocks[newX][fallenBlocks[0].length - 1 - newY] = color;
-                break;
-            case 2: // 旋转180度
-                fallenBlocks[fallenBlocks.length - 1 - newY][fallenBlocks[0].length - 1 - newX] = color;
-                break;
-            case 3: // 逆时针旋转90度
-                fallenBlocks[fallenBlocks.length - 1 - newX][newY] = color;
-                break;
+    const shapeWidth = shape[0].length;
+    const shapeHeight = shape.length;
+    for (let i = 0; i < shapeHeight; i++) {
+        for (let j = 0; j < shapeWidth; j++) {
+            if (shape[i % shapeHeight][j % shapeWidth] === 1) { // 如果是方块
+                let newX, newY;
+                // 根据旋转角度计算新的位置
+                switch (rotation) {
+                    case 0: // 无旋转
+                        newX = x + j;
+                        newY = y + i;
+                        break;
+                    case 1: // 顺时针旋转90度
+                        newX = y + shapeWidth - 1 - j;
+                        newY = x + i;
+                        break;
+                    case 2: // 旋转180度
+                        newX = x + shapeWidth - 1 - j;
+                        newY = y + shapeHeight - 1 - i;
+                        break;
+                    case 3: // 逆时针旋转90度
+                        newX = y + j;
+                        newY = x + shapeHeight - 1 - i;
+                        break;
+                }
+                // 如果该位置已经在游戏区域内
+                if (newX >= 0 && newX < width && newY >= 0 && newY < heigh) {
+                    fallenBlocks[newY][newX] = color;
+                }
             }
         }
-    }
     }
 }
 
@@ -239,7 +246,7 @@ function randomSetShape() {//随机设置一个形状
     fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = -(shapes[shapeID].length);
-    fallingShape.rotation = 0;
+    fallingShape.rotation = 2;
 }
 function checkForCollision() {
     const shape = shapes[fallingShape.shapeID];
@@ -298,8 +305,9 @@ function update(){
         }catch(e){
             console.log(fallingShape);
             console.log(colors);
-        }
+        }console.log(fallingShape.y);
         randomSetShape();
+        console.log('running');
     }
 }
 update();
@@ -307,4 +315,4 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},1)
+},100)
