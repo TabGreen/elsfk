@@ -289,7 +289,7 @@ function update(){
     gameCTX.clearRect(0, 0, gameCVS.width, gameCVS.height);
     gameCTX.drawImage(bufferCVS, 0, 0);
     if(checkForCollision()||fallingShape.y+shapes[fallingShape.shapeID].length >= heigh){
-        if(fallingShape.y + shapes[fallingShape.shapeID].length - 1 <= 0){
+        if(fallingShape.y + shapes[fallingShape.shapeID].length -2 <= 0){
             clearInterval(gameThread);
         }
         try{
@@ -306,4 +306,4 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},100)
+},10)
