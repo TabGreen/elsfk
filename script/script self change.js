@@ -197,7 +197,7 @@ function storeFallenBlock() {//将当前形状信息添加到已落方块数组�
                         newY = y + i;
                         break;
                     case 1: // 顺时针旋转90度
-                        newX = x + shapeHeight - 1 - j;
+                        newX = x + shapeHeight - 1 - i  ;
                         newY = y + j;
                         break;
                     case 2: // 旋转180度
@@ -248,12 +248,12 @@ function checkForCollision() {
         if (shape[row % shapeHeight][col % shapeWidth] === 1) { // 如果是方块
             let gameRow = fallingShape.y +1+ row;
             let gameCol = fallingShape.x + col;
-          // 根据旋转角度计算新的位置
+            // 根据旋转角度计算新的位置
             switch (rotation) {
             case 0: // 无旋转
                 break;
             case 1: // 顺时针旋转90度
-                [gameRow, gameCol] = [fallingShape.x + shapeHeight - 1 - row, fallingShape.y + 1 + col];
+                [gameRow, gameCol] = [fallingShape.x + shapeHeight - 1 +1 - row, fallingShape.y +1-1 + col];
                 break;
             case 2: // 旋转180度
                 [gameRow, gameCol] = [fallingShape.y + shapeHeight - row, fallingShape.x + shapeWidth - 1 - col];
@@ -309,4 +309,4 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},50)
+},100)
