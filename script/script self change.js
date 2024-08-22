@@ -235,7 +235,7 @@ function randomSetShape() {//随机设置一个形状
     fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = -(shapes[shapeID].length);
-    fallingShape.rotation = 1;
+    fallingShape.rotation = 3;
 }
 function checkForCollision() {
     const shape = shapes[fallingShape.shapeID];
@@ -253,13 +253,16 @@ function checkForCollision() {
             case 0: // 无旋转
                 break;
             case 1: // 顺时针旋转90度
-                [gameRow, gameCol] = [fallingShape.x + shapeHeight - 1 +1 - row, fallingShape.y +1-1 + col];
+            //收到AI的启发我明白了
+                gameCol = fallingShape.x + shapeHeight - 1 - row;
+                gameRow = fallingShape.y + 1 + col;
                 break;
             case 2: // 旋转180度
                 [gameRow, gameCol] = [fallingShape.y + shapeHeight - row, fallingShape.x + shapeWidth - 1 - col];
                 break;
             case 3: // 逆时针旋转90度
-                [gameRow, gameCol] = [fallingShape.x + row, fallingShape.y + shapeWidth - col];
+            //这里只是简单吧两个变量换位置
+                [gameCol, gameRow] = [fallingShape.x + row, fallingShape.y + shapeWidth - col];
                 break;
             }
           // 如果该位置已经有方块存在
@@ -309,4 +312,4 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},100)
+},0)
