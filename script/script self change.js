@@ -1,6 +1,8 @@
 const blockSize = 25;//单个方块的大小25像素
 const heigh = 20;//y轴方向方块个数最多20个
 const width = 10;//x轴方向方块个数最多10个
+const updateTime = 1000;
+var isDelay = false;//方块落到底部时，延迟一段时间再执行下一次方块下落
 const colors = [
     "#00FFFF",
     "#FFFF00",
@@ -235,7 +237,7 @@ function randomSetShape() {//随机设置一个形状
     fallingShape.color = color;
     fallingShape.x = Math.floor(Math.random() * (width - shapes[shapeID][0].length));
     fallingShape.y = -(shapes[shapeID].length);
-    fallingShape.rotation = 3;
+    fallingShape.rotation =  Math.floor(Math.random() * 4);
 }
 function checkForCollision() {
     const shape = shapes[fallingShape.shapeID];
@@ -298,8 +300,9 @@ function update(){
             clearInterval(gameThread);
             return;//这里在碰撞之后直接返回,否则继续运行可能会导致存储被索引到不存在的数据,导致错误
         }
-        try{
-        storeFallenBlock();
+        try{sleep(updateTime);
+            
+            storeFallenBlock();
         }catch(e){
             console.log(fallingShape);
             console.log(colors);
@@ -312,4 +315,59 @@ update();
 var gameThread = setInterval(function(){
     update();
     fallingShape.y++;
-},0)
+},updateTime)
+
+function sleep(delay){
+    var startTime = new Date().getTime();
+    while(new Date().getTime() < startTime + delay){
+        continue;
+    }
+}
+
+document.addEventListener("keydown", function(event) {
+    switch (event.key) {
+        case "ArrowLeft"://左移
+            if(fallingShape.x>0){
+                fallingShape.x--;
+            }
+            break;
+        case "ArrowRight"://右移
+            if(fallingShape.rotation%2===0){
+                if(fallingShape.x+shapes[fallingShape.shapeID][0].length<width){
+                    fallingShape.x++;
+                }
+            }else{
+                if(fallingShape.x+shapes[fallingShape.shapeID].length<width){
+                    fallingShape.x++;
+                }
+            }
+            break;
+        case "ArrowUp"://旋转
+            fallingShape.rotation++;
+            if(fallingShape.rotation>3){
+                fallingShape.rotation=0;
+            }//处理旋转之后的Bug(也就是吧上方的判定逻辑放到这里,把if改成while)
+            while(fallingShape.x<0){
+                fallingShape.x++;
+            }if(fallingShape.rotation%2===0){
+                while(fallingShape.x+shapes[fallingShape.shapeID][0].length>width){
+                    fallingShape.x--;
+                }
+            }else{
+                while(fallingShape.x+shapes[fallingShape.shapeID].length>width){
+                    fallingShape.x--;
+                }
+            }
+            break;
+        case "ArrowDown"://下降
+
+            if(fallingShape.rotation % 2 === 0){
+                var isCollisionButtom = fallingShape.y+shapes[fallingShape.shapeID].length >= heigh;
+            }else{
+                var isCollisionButtom = fallingShape.y+shapes[fallingShape.shapeID][0].length >= heigh;
+            }if(!(checkForCollision()||isCollisionButtom)){
+                fallingShape.y++;
+            }
+            break;
+    }update();
+});
