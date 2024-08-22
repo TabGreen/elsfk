@@ -1,7 +1,7 @@
 const blockSize = 25;//单个方块的大小25像素
 const heigh = 20;//y轴方向方块个数最多20个
 const width = 10;//x轴方向方块个数最多10个
-const updateTime = 1000;
+const updateTime = 10;//每一次刷新间隔时间
 var isDelay = false;//方块落到底部时，延迟一段时间再执行下一次方块下落
 const colors = [
     "#00FFFF",
