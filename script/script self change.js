@@ -1,7 +1,7 @@
 const blockSize = 25;//单个方块的大小25像素
 const heigh = 20;//y轴方向方块个数最多20个
 const width = 10;//x轴方向方块个数最多10个
-const updateTime = 10;//每一次刷新间隔时间
+const updateTime = 400;//每一次刷新间隔时间
 var isDelay = false;//方块落到底部时，延迟一段时间再执行下一次方块下落
 const colors = [
     "#00FFFF",
@@ -300,8 +300,7 @@ function update(){
             clearInterval(gameThread);
             return;//这里在碰撞之后直接返回,否则继续运行可能会导致存储被索引到不存在的数据,导致错误
         }
-        try{sleep(updateTime);
-            
+        try{
             storeFallenBlock();
         }catch(e){
             console.log(fallingShape);
